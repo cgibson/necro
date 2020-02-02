@@ -1,3 +1,5 @@
+import * as Entities from '../entities';
+
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
   visible: false,
@@ -12,28 +14,61 @@ export class GameScene extends Phaser.Scene {
     super(sceneConfig);
   }
 
+  player: Entities.Player;
+
+  // Logging nonsense
+  _text: Phaser.GameObjects.Text;
+  _logged_text: Array<string>;
+
+  public preload() {
+    this.load.image('test', 'assets/images/test_entity.png');
+  }
+
   public create() {
-    this.square = this.add.rectangle(400, 400, 100, 100, 0xFFFFFF) as any;
-    this.physics.add.existing(this.square);
+    this.player = new Entities.Player(this, new Phaser.Geom.Point(50, 50));
+    var style = {
+      font: '15px Arial',
+      fill: '#fff',
+      align: 'left',  // the alignment of the text is independent of the bounds,
+                      // try changing to 'center' or 'right'
+      boundsAlignH: 'left',
+      boundsAlignV: 'top',
+      wordWrap: true,
+      wordWrapWidth: 400
+    };
+
+    // Logging nonsense
+    this._logged_text = new Array<string>();
+    this._text = this.add.text(400, 16, '', style);
+    this._text.setResolution(2);
+    this._text.setWordWrapWidth(500);  // setTextBounds(16, 16, 768, 568);
+    this.log('Game started');
+  }
+
+  log(text: string) {
+    this._logged_text.push(text);
+    if (this._logged_text.length > 20) {
+      this._logged_text.shift();
+    }
+    this._text.setText(this._logged_text.join('\n'));
   }
 
   public update() {
+    // All elements should tick first
+    this.player.tick();
+
     const cursorKeys = this.input.keyboard.createCursorKeys();
 
     if (cursorKeys.up.isDown) {
-      this.square.body.setVelocityY(-500);
+      this.player.goUp();
     } else if (cursorKeys.down.isDown) {
-      this.square.body.setVelocityY(500);
-    } else {
-      this.square.body.setVelocityY(0);
+      this.player.goDown();
     }
 
     if (cursorKeys.right.isDown) {
-      this.square.body.setVelocityX(500);
+      this.player.goRight();
     } else if (cursorKeys.left.isDown) {
-      this.square.body.setVelocityX(-500);
-    } else {
-      this.square.body.setVelocityX(0);
+      this.player.goLeft()
     }
   }
 }

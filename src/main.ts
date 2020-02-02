@@ -22,6 +22,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
 
   parent: 'game',
   backgroundColor: '#209090',
+  resolution: window.devicePixelRatio,
 };
 
 export const game = new Phaser.Game(gameConfig);
